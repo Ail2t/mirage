@@ -1,6 +1,8 @@
 import re
+import requests
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+from evidence import Evidence
 
 class Fiche(BaseModel):
     """Champs fournis par l'agent"""

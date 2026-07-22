@@ -58,7 +58,42 @@ def main():
         sys.exit(0)
 
     probe = charger_sonde(code)
-    print("Sonde chargée avec succès")
+
+    # Authentification sur DVWA 
+    # Si injoignable alors INDETERMINE, jamais corrigé
+    try:
+        session = session_authentifiee(fiche.base_url, fiche.dvwa_security)
+    except requests.RequestException as e:
+        print(f"\nActif : {fiche.actif}\nVerdict : INDÉTERMINÉ")
+        print(f"Preuve : cible injoignable au login ({e})")
+        sys.exit(0)
+
+    # Rejeu N fois pour vérifier la stabilité du verdict
+    fiche_dict = fiche.model_dump()   # la sonde générée travaille avec un dict
+    verdicts, premiere = [], None
+    for i in range(args.runs):
+        ev = probe(session, fiche.base_url, fiche_dict)
+        v, preuve = rendre_verdict(ev)
+        verdicts.append(v)
+        if i == 0:
+            premiere = (v, preuve, ev)
+
+    v0, preuve0, ev0 = premiere
+    stable = len(set(verdicts)) == 1
+
+    # Rapport final
+    print(f"\n{'='*60}")
+    print(f"Fiche     : {fiche.description}")
+    print(f"Actif     : {fiche.actif}")
+    print(f"Niveau    : DVWA={fiche.dvwa_security}")
+    print(f"{'-'*60}")
+    print(f"Verdict   : {v0}")
+    print(f"Preuve    : {preuve0}")
+    print(f"Evidence  : {ev0}")
+    print(f"Stabilité : {'STABLE' if stable else 'INSTABLE'} sur {args.runs} rejeux : {verdicts}")
+    print(f"{'='*60}")
+
+
 
 
 if __name__ == "__main__":

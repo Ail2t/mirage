@@ -72,3 +72,42 @@ def extraire_fiche_ia(writeup: str, base_url: str, actif: str, param: str, secur
     fiche.param_injecte = param
     return fiche
 
+
+PROMPT_SONDE = """Tu es un générateur de sondes de revérification de vulnérabilités web (boîte noire).
+
+On te donne une fiche de vulnérabilité (JSON). Tu produis UNIQUEMENT le corps
+d'une fonction Python nommée `probe`, sans rien d'autre.
+
+Signature imposée :
+    def probe(session, base_url, fiche):
+
+Contrat STRICT :
+  - `session` est un requests.Session DÉJÀ authentifié. Ne fais PAS de login.
+  - Tu collectes des FAITS et remplis un Evidence. Tu ne JUGES RIEN.
+    Evidence(cible_vivante: bool, marqueur_present: bool, details: dict, erreur: str|None)
+  - Étape 1 — liveness : UNE requête GET sur base_url + fiche["actif"] avec
+    fiche.get("params_base", {}), SANS payload. Si status_code < 500 -> vivante.
+    Sinon renvoie Evidence(cible_vivante=False, erreur=...) et arrête-toi.
+  - Étape 2 — exploit : reprends params_base, mets fiche["payload"] dans le
+    paramètre fiche["param_injecte"], envoie la requête. marqueur_present=True
+    UNIQUEMENT si fiche["marqueur_succes"] apparaît dans r.text.
+  - Enveloppe chaque requête dans try/except requests.RequestException. Pour
+    l'exploit en cas d'exception : Evidence(cible_vivante=True,
+    marqueur_present=False, erreur=str(e)). Ne conclus JAMAIS "corrigé".
+  - AUCUN import. `requests` et `Evidence` sont déjà disponibles.
+  - Réponds avec le CODE SEULEMENT : pas de texte, pas de ```.
+"""
+
+def generer_sonde_ia(fiche: Fiche) -> str:
+    import anthropic
+    client = anthropic.Anthropic()
+    msg = cleint.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=1500,
+            system=PROMPT_SONDE
+            messages=[{"role": "user", "content": "Fiche :\n\n" + fiche.model_dump_json(indent=2)]},
+            )
+        code = "".join(b.text for b in msg.content if b.type == "text").strip()
+        code = re.sub(r"^```(?:python)?\s*", "", code)
+        code = re.sub(r"\s*```$", "", code)
+        return code

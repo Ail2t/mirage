@@ -1,6 +1,6 @@
 from evidence import Evidence 
 
-def rendre_verdict(e):
+def rendre_verdict(e: Evidence) -> tuple[str, str]:
     # Si la cible est morte ou injoignable
     if not e.cible_vivante:
         return "INDETERMINE", f"cible non vivante ou injoignable (erreur : {e.erreur})"

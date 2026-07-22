@@ -2,28 +2,35 @@ import requests
 
 from bs4 import BeautifulSoup
 
-LOGIN_URL="http://localhost:4280/login.php"
 USER="admin"
 PASS="password"
 
-s = requests.Session()
-response = s.get(LOGIN_URL, timeout=10)
-soup = BeautifulSoup(response.text, "html.parser")
+def _extraire_token(html: str) -> str | None:
+    # On récupère la valeur du champ caché user_token dans la page DVWA
+    soup = BeautifulSoup(html, "html.parser")
+    champ = soup.find("input", {"name": "user_token"})
+    return champ["value"] if champ else None
 
-token = soup.find("input", attrs={"name": "user_token"})["value"]
+def session_authentifiee(base_url: str) -> requests.Session:
+    s = requests.Session()
 
-print(f"Token récupéré : {token}")
+    # On récupère le token et on pose le PHPSESSID
 
-payload = {
-        "username":USER,
-        "password": PASS,
-        "Login": "Login",
-        "user_token": token
-        }
+    r = s.get(f"{base_url}/login.php", timeout=10)
+    token = _extraire_token(r.text)
+    
+    payload = {
+            "username":USER,
+            "password": PASS,
+            "Login": "Login",
+            "user_token": token
+            }
 
-r = s.post(LOGIN_URL, data=payload, timeout=10)
+    r = s.post(f"{base_url}/login.php", data=payload, timeout=10, allow_redirects=True)
 
-if "Logout" in r.text:
-    print("Connexion reussie")
-else:
-    print("Connexion refusée")
+    if "Logout" in r.text:
+        print("Connexion reussie")
+    else:
+        raise requests.RequestException("login échoué")
+
+    return s

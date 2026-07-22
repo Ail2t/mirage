@@ -14,6 +14,7 @@ def main():
     parser.add_argument("--actif", required=True, help="Chemin du module à tester")
     parser.add_argument("--param", required=True, help="Nom du paramètre HTTP à injecter")
     parser.add_argument("--security", default="low", help="Niveau voulu pour DVWA")
+    parser.add_argument("--extra-params", default="", help="Paramètres annexes du formulaire, ex: Submit=Submit")
     parser.add_argument("--show-fiche", action="store_true", help="Affiche la fiche générée par IA")
     parser.add_argument("--runs", type=int, default=2)
     args = parser.parse_args()
@@ -35,6 +36,12 @@ def main():
         print(f"Echec de l'extraction : {e}")
         sys.exit(1)
     
+    # Paramètres annexes fournis par l'utilisateur si il le souhaite (ex: Submit=Submit)
+    if args.extra_params:
+        for paire in args.extra_params.split(","):
+            cle, _, valeur = paire.partition("=")
+            fiche.params_base[cle.strip()] = valeur.strip()
+
     # Ajout de la fiche si option
     if args.show_fiche:
         print("Fiche extraite par l'IA :")

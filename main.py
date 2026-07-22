@@ -1,7 +1,10 @@
 import os
 import sys
 import argparse
+import requests
 
+from auth import session_authentifiee
+from verdict import rendre_verdict
 from agent import extraire_fiche_ia, generer_sonde_ia, charger_sonde
 
 def main():
@@ -31,11 +34,31 @@ def main():
     except Exception as e:
         print(f"Echec de l'extraction : {e}")
         sys.exit(1)
+    
+    # Ajout de la fiche si option
+    if args.show_fiche:
+        print("Fiche extraite par l'IA :")
+        print(fiche.model_dump_json(indent=2))
 
-    print("Fiche extraite : ", fiche.description)
+    # 2ème étape : génération de la sonde depuis la fiche
+    print("L'agent IA génère la sonde")
+    try:
+        code = generer_sonde_ia(fiche)
+    except Exception as e:
+        print(f"Echec de la génération : {e}")
+        sys.exit(1)
 
+    # Affichage de la sonde générée avec validation humaine avant exécution
+    print("\nSonde générée :")
+    print(code)
+    print("─────────────────────")
+    reponse = input("Exécuter cette sonde ? [o/N] ")
+    if reponse.strip().lower() != "o":
+        print("Exécution annulée")
+        sys.exit(0)
 
-
+    probe = charger_sonde(code)
+    print("Sonde chargée avec succès")
 
 
 if __name__ == "__main__":

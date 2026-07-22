@@ -111,3 +111,12 @@ def generer_sonde_ia(fiche: Fiche) -> str:
     code = re.sub(r"^```(?:python)?\s*", "", code)
     code = re.sub(r"\s*```$", "", code)
     return code
+
+
+def charger_sonde(code: str):
+    """On exécute le code généré et vérifie qu'il définit bien une fonction probe"""
+    espace = {"requests": requests, "Evidence": Evidence}
+    exec(code, espace)
+    if "probe" not in espace:
+        raise RuntimeError("Le code généré ne définit pas de fonction probe()")
+    return espace["probe"]

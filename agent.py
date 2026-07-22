@@ -101,13 +101,13 @@ Contrat STRICT :
 def generer_sonde_ia(fiche: Fiche) -> str:
     import anthropic
     client = anthropic.Anthropic()
-    msg = cleint.messages.create(
+    msg = client.messages.create(
             model="claude-sonnet-4-5",
             max_tokens=1500,
-            system=PROMPT_SONDE
-            messages=[{"role": "user", "content": "Fiche :\n\n" + fiche.model_dump_json(indent=2)]},
+            system=PROMPT_SONDE,
+            messages=[{"role": "user", "content": "Fiche :\n\n" + fiche.model_dump_json(indent=2)}],
             )
-        code = "".join(b.text for b in msg.content if b.type == "text").strip()
-        code = re.sub(r"^```(?:python)?\s*", "", code)
-        code = re.sub(r"\s*```$", "", code)
-        return code
+    code = "".join(b.text for b in msg.content if b.type == "text").strip()
+    code = re.sub(r"^```(?:python)?\s*", "", code)
+    code = re.sub(r"\s*```$", "", code)
+    return code

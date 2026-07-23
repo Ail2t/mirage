@@ -17,6 +17,24 @@ pentester), mais de **rejouer un contrôle connu** décrit dans une fiche.
 
 ## Architecture
 
+[ Write-up Brut ] + [ Coordonnées Cible ]
+               │
+               ▼
+       [ Étage 1 : IA ] ────> [ Fiche Pydantic ]
+                                    │
+                                    ▼
+                            [ Étage 2 : IA ] ────> [ Fonction Probe Python ]
+                                                              │
+                                                              ▼
+                                                   [ Validation Humaine o/N ]
+                                                              │
+                                                              ▼
+                                                    [ Exécution vs Cible ]
+                                                              │
+                                                              ▼
+                                                    [ Moteur de Verdict ] ──> VULNÉRABLE / CORRIGÉ / INDÉTERMINÉ
+
+
 Mirage repose sur une séparation stricte entre ce que fait l'IA et ce qui reste
 déterministe :
 
@@ -78,21 +96,26 @@ python3 main.py ../writeup_xss.txt \
 Les trois verdicts se démontrent en changeant `--security` : `low` →
 VULNÉRABLE, `impossible` → CORRIGÉ ; en arrêtant le conteneur → INDÉTERMINÉ.
 
-## Limites et pistes (à discuter)
+## Limites et pistes
 
-- **Isolation de l'exécution.** La sonde générée est chargée via exec() : seuls 
+- **Isolation de l'exécution :** La sonde générée est chargée via exec() : seuls 
   requests et Evidence sont pré-injectés, mais l'exécution n'est pas isolée. 
   La validation humaine ([o/N]) reste le seul garde-fou ; une vraie isolation 
   passerait par un subprocess ou un conteneur jetable dédié.
-- **Liveliness permissive** : La liveliness de la cible est aujourd'hui testée
+- **Niveau de délégation à l'IA :** Le choix retenu pour l'architecture est 
+  d'exécuter une fonction probe généré par IA pour réaliser le retest, avec
+  comme idée de réaliser des tests sur des failles multi-étapes. Pour les 
+  failles testées dans ce POC, une fonction probe fixe argumentée par IA aurait
+  pu suffir et poserait moins de problématiques sur l'exécution du code.
+- **Liveness permissive :** La liveness de la cible est aujourd'hui testée
   par la sonde générée par l'IA, ce qui peut être sujet à une erreur lors de la
   génération du code. Une amélioration serait d'avoir une fonction dédiée, et 
-  serait l'une des premiers mises a jours à faire sur cet outil.
-- **La stabilité mesure le réseau** : Dans cet outil, la sonde est générée une
+  serait l'une des premières mises a jours à faire sur cet outil.
+- **La stabilité mesure le réseau :** Dans cet outil, la sonde est générée une
   fois pour limiter les appels API pour ensuite être rejouée N fois. Une vraie 
   mesure de stabilité régénérerait fiche et sonde à chaque itération, au prix de 
   N appels IA.
-- **Vulnérabilités hors du modèle « un GET, un marqueur ».** Les failles
+- **Vulnérabilités hors du modèle « un GET, un marqueur » :** Les failles
   multi-étapes (ex. SQLi « high » de DVWA, où la valeur transite par la session
   et non par l'URL), les injections aveugles (blind, à détecter par
   différentiel temporel) et les XSS stockées ne sont pas couvertes par la sonde
@@ -100,14 +123,14 @@ VULNÉRABLE, `impossible` → CORRIGÉ ; en arrêtant le conteneur → INDÉTERM
 - **Choix du marqueur.** Il est laissé à l'IA et peut être trop générique. Un
   bon marqueur de revérification est discriminant (une chaîne témoin qu'on ne
   verrait jamais sans exploitation réussie).
-- **Cohérence write-up / coordonnées.** Si les coordonnées fournies
+- **Cohérence write-up / coordonnées :** Si les coordonnées fournies
   contredisent le write-up, la fiche peut être incohérente. Une vérification de
   cohérence serait une amélioration.
-- **Découpage.** Le code est segmenté en modules (evidence, verdict, auth,
+- **Découpage :** Le code est segmenté en modules (evidence, verdict, auth,
   agent, main). On pourrait pousser plus loin la séparation (ex. isoler les
   prompts, le modèle Fiche dans son propre fichier) et éventuellement renommer
   les fichiers de tests.
-- **Automatisation en batch.** La validation humaine convient à un usage
+- **Automatisation en batch :** La validation humaine convient à un usage
   interactif ; pour revérifier de nombreuses vulnérabilités en série, elle
   deviendrait un flag optionnel, complété par l'isolation en conteneur.
 

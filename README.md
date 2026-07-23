@@ -87,7 +87,7 @@ pip install -r requirements.txt
 export ANTHROPIC_API_KEY=sk-...
 
 # Revérification (exemple : XSS réfléchie)
-python3 main.py ../writeup_xss.txt \
+python3 main.py writeups/writeup_xss.txt \
     --base-url http://localhost:4280 \
     --actif /vulnerabilities/xss_r/ \
     --param name \

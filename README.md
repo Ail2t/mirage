@@ -21,10 +21,10 @@ pentester), mais de **rejouer un contrôle connu** décrit dans une fiche.
 [ Write-up Brut ] + [ Coordonnées Cible ]
                │
                ▼
-       [ Étage 1 : IA ] ────> [ Fiche Pydantic ]
+    [ Étage 1 : Appel API ] ────> [ Fiche Pydantic ]
                                     │
                                     ▼
-                            [ Étage 2 : IA ] ────> [ Fonction Probe Python ]
+                        [ Étage 2 : Appel API ] ────> [ Fonction Probe Python ]
                                                               │
                                                               ▼
                                                    [ Validation Humaine o/N ]

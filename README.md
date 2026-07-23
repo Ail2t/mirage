@@ -17,6 +17,7 @@ pentester), mais de **rejouer un contrôle connu** décrit dans une fiche.
 
 ## Architecture
 
+```text
 [ Write-up Brut ] + [ Coordonnées Cible ]
                │
                ▼
@@ -33,6 +34,7 @@ pentester), mais de **rejouer un contrôle connu** décrit dans une fiche.
                                                               │
                                                               ▼
                                                     [ Moteur de Verdict ] ──> VULNÉRABLE / CORRIGÉ / INDÉTERMINÉ
+```
 
 
 Mirage repose sur une séparation stricte entre ce que fait l'IA et ce qui reste

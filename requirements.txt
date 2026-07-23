@@ -1,3 +1,4 @@
 requests
-pudantic
+pydantic
 anthropic
+beautifulsoup4

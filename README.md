@@ -50,9 +50,10 @@ déterministe :
 **La règle du faux-corrigé.** Le pire échec d'un outil de revérification est de
 déclarer « corrigé » une faille encore ouverte. Mirage l'évite par deux
 mécanismes : la sonde teste d'abord la *vivacité* de la cible indépendamment de
-l'exploit, et le moteur de verdict refuse de conclure « corrigé » sur toute
-erreur, timeout ou absence de réponse — ces cas donnent INDÉTERMINÉ. Une cible
-éteinte n'est jamais confondue avec une cible corrigée.
+l'exploit (contrôle aujourd'hui basique, voir Limites), et le moteur de verdict 
+refuse de conclure « corrigé » sur toute erreur, timeout ou absence de 
+réponse — ces cas donnent INDÉTERMINÉ. Une cible éteinte n'est jamais confondue 
+avec une cible corrigée.
 
 **Validation humaine avant exécution.** Le code de la sonde étant généré par
 l'IA, il est affiché et soumis à confirmation (`[o/N]`) avant d'être exécuté.
@@ -98,14 +99,14 @@ VULNÉRABLE, `impossible` → CORRIGÉ ; en arrêtant le conteneur → INDÉTERM
   La validation humaine ([o/N]) reste le seul garde-fou ; une vraie isolation 
   passerait par un subprocess ou un conteneur jetable dédié.
 - **Niveau de délégation à l'IA :** Le choix retenu pour l'architecture est 
-  d'exécuter une fonction probe généré par IA pour réaliser le retest, avec
+  d'exécuter une fonction probe générée par IA pour réaliser le retest, avec
   comme idée de réaliser des tests sur des failles multi-étapes. Pour les 
   failles testées dans ce POC, une fonction probe fixe argumentée par IA aurait
-  pu suffir et poserait moins de problématiques sur l'exécution du code.
+  pu suffire et poserait moins de problématiques sur l'exécution du code.
 - **Liveness permissive :** La liveness de la cible est aujourd'hui testée
   par la sonde générée par l'IA, ce qui peut être sujet à une erreur lors de la
   génération du code. Une amélioration serait d'avoir une fonction dédiée, et 
-  serait l'une des premières mises a jours à faire sur cet outil.
+  serait l'une des premières mises à jour à faire sur cet outil.
 - **La stabilité mesure le réseau :** Dans cet outil, la sonde est générée une
   fois pour limiter les appels API pour ensuite être rejouée N fois. Une vraie 
   mesure de stabilité régénérerait fiche et sonde à chaque itération, au prix de 

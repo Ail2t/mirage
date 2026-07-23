@@ -17,25 +17,18 @@ pentester), mais de **rejouer un contrôle connu** décrit dans une fiche.
 
 ## Architecture
 
-```text
-[ Write-up Brut ] + [ Coordonnées Cible ]
-               │
-               ▼
-    [ Étage 1 : Appel API ] ────> [ Fiche Pydantic ]
-                                    │
-                                    ▼
-                        [ Étage 2 : Appel API ] ────> [ Fonction Probe Python ]
-                                                              │
-                                                              ▼
-                                                   [ Validation Humaine o/N ]
-                                                              │
-                                                              ▼
-                                                    [ Exécution vs Cible ]
-                                                              │
-                                                              ▼
-                                                    [ Moteur de Verdict ] ──> VULNÉRABLE / CORRIGÉ / INDÉTERMINÉ
+```mermaid
+graph TD
+    A[write-up brut + coordonnées] --> B[Étage 1 : extraction IA]
+    B --> C[Fiche validée Pydantic]
+    C --> D[Étage 2 : génération IA]
+    D --> E{Validation humaine o/N}
+    E -->|refus| F[Arrêt]
+    E -->|accord| G[Exécution de la sonde]
+    G --> H[Evidence : faits bruts]
+    H --> I[Moteur de verdict — hors IA]
+    I --> J[VULNÉRABLE / CORRIGÉ / INDÉTERMINÉ]
 ```
-
 
 Mirage repose sur une séparation stricte entre ce que fait l'IA et ce qui reste
 déterministe :

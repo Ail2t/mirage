@@ -20,7 +20,7 @@ pentester), mais de **rejouer un contrôle connu** décrit dans une fiche.
 Mirage repose sur une séparation stricte entre ce que fait l'IA et ce qui reste
 déterministe :
 
-- **Étage 1 — extraction.** Un agent lit le write-up brut (prose) et en extrait
+- **Étage 1 — extraction.** Un agent lit le write-up brut et en extrait
   une fiche structurée : payload, marqueur de succès, description. Les
   coordonnées techniques que le write-up ne contient pas (URL du module,
   paramètre HTTP) sont fournies en ligne de commande et priment sur toute
@@ -61,7 +61,7 @@ docker run --rm -d -p 4280:80 vulnerables/web-dvwa
 # puis dans le navigateur : Create/Reset Database
 
 # Dépendances
-pip install requests pydantic anthropic
+pip install -r requirements.txt
 
 # Clé API
 export ANTHROPIC_API_KEY=sk-...
@@ -84,6 +84,14 @@ VULNÉRABLE, `impossible` → CORRIGÉ ; en arrêtant le conteneur → INDÉTERM
   requests et Evidence sont pré-injectés, mais l'exécution n'est pas isolée. 
   La validation humaine ([o/N]) reste le seul garde-fou ; une vraie isolation 
   passerait par un subprocess ou un conteneur jetable dédié.
+- **Liveliness permissive** : La liveliness de la cible est aujourd'hui testée
+  par la sonde générée par l'IA, ce qui peut être sujet à une erreur lors de la
+  génération du code. Une amélioration serait d'avoir une fonction dédiée, et 
+  serait l'une des premiers mises a jours à faire sur cet outil.
+- **La stabilité mesure le réseau** : Dans cet outil, la sonde est générée une
+  fois pour limiter les appels API pour ensuite être rejouée N fois. Une vraie 
+  mesure de stabilité régénérerait fiche et sonde à chaque itération, au prix de 
+  N appels IA.
 - **Vulnérabilités hors du modèle « un GET, un marqueur ».** Les failles
   multi-étapes (ex. SQLi « high » de DVWA, où la valeur transite par la session
   et non par l'URL), les injections aveugles (blind, à détecter par
@@ -96,8 +104,10 @@ VULNÉRABLE, `impossible` → CORRIGÉ ; en arrêtant le conteneur → INDÉTERM
   contredisent le write-up, la fiche peut être incohérente. Une vérification de
   cohérence serait une amélioration.
 - **Découpage.** Le code est segmenté en modules (evidence, verdict, auth,
-  agent, main) ; on pourrait pousser plus loin la séparation (ex. isoler les
-  prompts, le modèle Fiche dans son propre fichier).
+  agent, main). On pourrait pousser plus loin la séparation (ex. isoler les
+  prompts, le modèle Fiche dans son propre fichier) et éventuellement renommer
+  les fichiers de tests.
 - **Automatisation en batch.** La validation humaine convient à un usage
   interactif ; pour revérifier de nombreuses vulnérabilités en série, elle
   deviendrait un flag optionnel, complété par l'isolation en conteneur.
+

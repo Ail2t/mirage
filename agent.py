@@ -89,8 +89,13 @@ Contrat STRICT :
   - Tu collectes des FAITS et remplis un Evidence. Tu ne JUGES RIEN.
     Evidence(cible_vivante: bool, marqueur_present: bool, details: dict, erreur: str|None)
   - Étape 1 — liveness : UNE requête GET sur base_url + fiche["actif"] avec
-    fiche.get("params_base", {}), SANS payload. Si status_code < 500 -> vivante.
-    Sinon renvoie Evidence(cible_vivante=False, erreur=...) et arrête-toi.
+    fiche.get("params_base", {}), SANS payload. La cible est considérée vivante
+    UNIQUEMENT si TOUTES ces conditions sont réunies :
+      * status_code == 200 (strictement, pas seulement < 500) ;
+      * "login.php" n'apparaît PAS dans r.url (sinon la session a expiré) ;
+      * "Logout" apparaît dans r.text (preuve qu'on est bien authentifié).
+    Si une seule condition échoue -> Evidence(cible_vivante=False, erreur=...)
+    décrivant laquelle, et arrête-toi. Ne teste PAS l'exploit dans ce cas.
   - Étape 2 — exploit : reprends params_base, mets fiche["payload"] dans le
     paramètre fiche["param_injecte"], envoie la requête. marqueur_present=True
     UNIQUEMENT si fiche["marqueur_succes"] apparaît dans r.text.

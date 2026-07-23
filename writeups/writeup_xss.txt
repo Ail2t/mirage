@@ -1,0 +1,10 @@
+1. Low
+Enter your name into the input field and observe the application's behavior.
+The input is directly reflected in both the URL and the page output beside "Hello".
+View its source by selecting "View Source" in the bottom-right corner.
+Observe that the application simply echoes back the user-supplied input without any sanitization or encoding.
+Inject the following payload into the input field:
+
+<script>alert(1)</script>
+
+Result: A JavaScript alert is successfully executed, confirming the application is vulnerable to reflected XSS at this level.

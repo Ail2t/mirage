@@ -12,7 +12,8 @@ class Fiche(BaseModel):
     payload: str
     # La chaine qui prouve le succes de l'exploit
     marqueur_succes: str
-    # Les paramètres annexes comme submit pour la SQLi
+    """Champs fournis par l'utilisateur"""
+    # Les paramètres annexes du formulaire, ex: Submit=Submit
     params_base: dict = {}
     # Puis les champs fournis manuellement
     base_url: str = ""
